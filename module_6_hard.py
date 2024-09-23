@@ -4,15 +4,21 @@ import math
 class Figure:
     sides_count = 0
 
-    def __init__(self, colors, *sides, filled=False):
+    def __init__(self, colors: list, *sides: int, filled=False):
         if sides is None or len(sides) != self.sides_count:
             sides = [1] * self.sides_count
-        self.__color = colors
+        trust_colors = []
+        for color in colors:
+            if 0 <= color <= 255:
+                trust_colors.append(color)
+            else:
+                trust_colors.append(0)
+        self.__color = trust_colors
         self.__sides = sides
         self.filled = filled
 
     def get_color(self):
-        return list(self.__color)
+        return self.__color
 
     def __is_valid_color(self, r, g, b):
         colors = [r, g, b]
@@ -25,6 +31,7 @@ class Figure:
         check = self.__is_valid_color(r, g, b)
         if check:
             self.__color = [r, g, b]
+
 
     def __is_valid_sides(self, *sides):
         count = 0
@@ -46,25 +53,31 @@ class Figure:
         return p
 
     def set_sides(self, *new_sides):
-        if len(new_sides) == self.sides_count:
-            self.__sides = new_sides
+        check = []
+        for side in new_sides:
+            if isinstance(side, int):
+                check.append(side)
+            else:
+                break
+        if len(check) == self.sides_count:
+            self.__sides = check
 
 
 class Circle(Figure):
     sides_count = 1
 
     def __radius(self):
-        return self.__sides[0] / (2 * math.pi)
+        return self.get_sides()[0] / (2 * math.pi)
 
     def get_square(self):
-        return 2 * math.pi * self.__radius()
+        return math.pi * (self.__radius() ** 2)
 
 
 class Triangle(Figure):
     sides_count = 3
 
     def get_square(self):
-        a, b, c = self.__sides
+        a, b, c = self.get_sides()
         p = 0.5 * (a + b + c)  # or p = 1/2 * sum(self.__sides)
         return math.sqrt(p * (p - a) * (p - b) * (p - c))
 
